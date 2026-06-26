@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@media print {
+  .print-hidden,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  body, main {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+
+  .print-header {
+    display: block !important;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+}
