@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -32,8 +33,43 @@ export default function RegisterPage() {
       setError(authError.message)
       return
     }
-    router.push('/')
-    router.refresh()
+    setVerifyEmail(email)
+  }
+
+  if (verifyEmail) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="w-full max-w-md text-center">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 text-3xl">
+            📬
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
+          <p className="text-gray-500 mb-1">We sent a verification link to:</p>
+          <p className="font-semibold text-gray-800 mb-6">{verifyEmail}</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-left space-y-3 mb-6">
+            <p className="text-sm text-gray-600 flex items-start gap-2">
+              <span className="text-green-500 mt-0.5">✓</span>
+              Open the email from Ahadu Fresh Meat
+            </p>
+            <p className="text-sm text-gray-600 flex items-start gap-2">
+              <span className="text-green-500 mt-0.5">✓</span>
+              Click the <span className="font-semibold">"Confirm your email"</span> link
+            </p>
+            <p className="text-sm text-gray-600 flex items-start gap-2">
+              <span className="text-green-500 mt-0.5">✓</span>
+              Then sign in with your new account
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full py-3 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] text-white font-semibold transition-colors"
+          >
+            Go to Sign In
+          </button>
+          <p className="text-xs text-gray-400 mt-4">Didn&apos;t receive it? Check your spam folder.</p>
+        </div>
+      </div>
+    )
   }
 
   const inputClass = 'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow'
