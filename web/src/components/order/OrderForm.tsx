@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { MEAT_TYPES } from '@/lib/constants'
 import { MeatCounter } from './MeatCounter'
@@ -26,8 +26,8 @@ const INITIAL: FormState = {
   godin_lbs: 0, gubet_lbs: 0, kidney_lbs: 0, notes: '',
 }
 
-const inputClass = 'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow'
-const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
+const inputClass = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000]/30 focus:border-[#8B0000] transition-all duration-200 bg-gray-50/50'
+const labelClass = 'block text-sm font-semibold text-gray-700 mb-1.5'
 
 export function OrderForm() {
   const [form, setForm] = useState<FormState>(INITIAL)
@@ -35,9 +35,23 @@ export function OrderForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
+  const [userId, setUserId] = useState<string | null>(null)
 
   const supabase = createClient()
   const totalLbs = MEAT_TYPES.reduce((sum, mt) => sum + form[mt.key], 0)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserId(user.id)
+        setForm(prev => ({
+          ...prev,
+          customer_email: user.email ?? '',
+          customer_name: user.user_metadata?.full_name ?? '',
+        }))
+      }
+    })
+  }, [supabase])
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -68,6 +82,7 @@ export function OrderForm() {
       kidney_lbs:     form.kidney_lbs,
       notes:          form.notes.trim() || null,
       status:         'pending',
+      user_id:        userId,
     }])
 
     setLoading(false)
@@ -86,14 +101,11 @@ export function OrderForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Reserve Your Meat</h2>
-        <p className="text-gray-500 text-sm">We&apos;ll confirm your order by phone. Pick up at Ahadu Market.</p>
-      </div>
+    <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-7">
 
       {/* Personal Info */}
       <div className="space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#8B0000]">Your Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
@@ -140,37 +152,44 @@ export function OrderForm() {
         </div>
       </div>
 
+      {/* Divider */}
+      <div className="border-t border-gray-100" />
+
       {/* Meat Selection */}
       <div>
-        <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#8B0000] inline-block"></span>
-          Select Your Meats (in pounds)
-        </h3>
-        <div className="bg-gray-50 rounded-xl px-4 border border-gray-100">
-          {MEAT_TYPES.map(mt => (
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#8B0000]">Select Meats & Pounds</h3>
+          {totalLbs > 0 && (
+            <span className="text-sm font-semibold bg-red-50 text-[#8B0000] px-3 py-1 rounded-full animate-fade-in">
+              {totalLbs} lbs total
+            </span>
+          )}
+        </div>
+        <div className="rounded-2xl border border-gray-100 bg-gray-50/40 px-5 divide-y divide-gray-100">
+          {MEAT_TYPES.map((mt, i) => (
             <MeatCounter
               key={mt.key}
               label={mt.label}
               description={mt.description}
+              icon={mt.icon}
               value={form[mt.key]}
               onChange={val => setField(mt.key, val)}
+              index={i}
             />
           ))}
         </div>
-        {totalLbs > 0 && (
-          <p className="text-sm text-gray-500 mt-2 text-right">
-            Total: <span className="font-semibold text-gray-700">{totalLbs} lbs</span>
-          </p>
-        )}
       </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100" />
 
       {/* Notes */}
       <div>
-        <label className={labelClass}>Special Requests <span className="text-gray-400 font-normal">(Optional)</span></label>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#8B0000] mb-3">Special Requests</h3>
         <textarea
           className={inputClass}
           rows={3}
-          placeholder="e.g. Please call me when ready"
+          placeholder="e.g. Please call me when ready, extra cleaning, etc."
           value={form.notes}
           onChange={e => setField('notes', e.target.value)}
         />
@@ -178,8 +197,8 @@ export function OrderForm() {
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
-          {error}
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 animate-fade-in flex items-center gap-2">
+          <span>⚠️</span> {error}
         </div>
       )}
 
@@ -187,7 +206,7 @@ export function OrderForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3.5 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] disabled:bg-gray-400 text-white text-base font-semibold transition-colors flex items-center justify-center gap-2"
+        className="w-full py-4 rounded-2xl bg-[#8B0000] hover:bg-[#6b0000] active:scale-[0.98] disabled:bg-gray-300 text-white text-base font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-900/20"
       >
         {loading ? (
           <>
@@ -195,12 +214,16 @@ export function OrderForm() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            Submitting...
+            Submitting your order...
           </>
-        ) : 'Submit Order'}
+        ) : (
+          <>
+            🥩 Reserve My Order
+          </>
+        )}
       </button>
 
-      <p className="text-center text-xs text-gray-400">Your order is saved securely.</p>
+      <p className="text-center text-xs text-gray-400">🔒 Your order is saved securely</p>
     </form>
   )
 }

@@ -21,6 +21,7 @@ export interface MeatType {
   key: keyof Pick<Order, 'tire_lbs' | 'kitfo_lbs' | 'tibs_lbs' | 'godin_lbs' | 'gubet_lbs' | 'kidney_lbs'>
   label: string
   description: string
+  icon: string
 }
 
 export interface AdminUser {
