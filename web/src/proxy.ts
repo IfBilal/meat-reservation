@@ -31,10 +31,25 @@ export async function proxy(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+    if (!adminRow) {
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
   }
 
   if (pathname === '/admin/login' && user) {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+    if (adminRow) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
   }
 
   return response

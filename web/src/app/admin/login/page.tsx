@@ -17,11 +17,24 @@ export default function AdminLoginPage() {
     setError(null)
     setLoading(true)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    if (authError || !authData.user) {
+      setLoading(false)
+      setError('Invalid email or password. Please try again.')
+      return
+    }
+
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', authData.user.id)
+      .maybeSingle()
+
     setLoading(false)
 
-    if (authError) {
-      setError('Invalid email or password. Please try again.')
+    if (!adminRow) {
+      await supabase.auth.signOut()
+      setError('Access denied. This account does not have admin privileges.')
       return
     }
 
