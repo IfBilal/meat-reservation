@@ -69,7 +69,7 @@ export function OrderForm() {
 
     setLoading(true)
 
-    const { error: insertError } = await supabase.from('orders').insert([{
+    const orderPayload = {
       customer_name:  form.customer_name.trim(),
       customer_phone: form.customer_phone.trim(),
       customer_email: form.customer_email.trim(),
@@ -81,8 +81,12 @@ export function OrderForm() {
       gubet_lbs:      form.gubet_lbs,
       kidney_lbs:     form.kidney_lbs,
       notes:          form.notes.trim() || null,
-      status:         'pending',
-      user_id:        userId,
+    }
+
+    const { error: insertError } = await supabase.from('orders').insert([{
+      ...orderPayload,
+      status:  'pending',
+      user_id: userId,
     }])
 
     setLoading(false)
@@ -91,6 +95,13 @@ export function OrderForm() {
       setError('Something went wrong submitting your order. Please try again.')
       return
     }
+
+    // Fire-and-forget confirmation email — never block the order on email delivery.
+    fetch('/api/send-confirmation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderPayload),
+    }).catch(() => {})
 
     setSubmittedEmail(form.customer_email)
     setSuccess(true)
