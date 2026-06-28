@@ -37,7 +37,7 @@ Build a **mobile-friendly native app** (iOS + Android) that mirrors the web
 customer experience and talks to the **same Supabase project** as the web app
 (`dqduwkruqkxjtbtinqxv`).
 
-**In scope (v1 — customer app):**
+**Customer features:**
 - Register / Login / email verification / forgot password
 - Place an order (name, phone, pickup date, 6 meat types w/ pounds, notes)
 - Order confirmation screen + confirmation email
@@ -45,15 +45,23 @@ customer experience and talks to the **same Supabase project** as the web app
 - WhatsApp share of the order link
 - Premium Butcher look & feel ported to native
 
-**Out of scope for v1 (recommended to keep on web):**
-- The **admin dashboard** (owner manages orders from the responsive web app).
-  Admin actions use the service-role key via Next.js API routes — not appropriate
-  to embed in a distributed mobile binary. See [§4](#4-critical-architecture-decisions).
-  *(If the client insists on mobile admin, it's a Phase 2 add-on — covered in §18.)*
+**Admin features (the app serves BOTH roles):**
+- Admin login (Supabase auth + `admin_users` membership check, like web)
+- Dashboard: all orders, search, status filter, date filter, **today/total pounds**
+- Change order status (forward/back, like the web dropdown)
+- Live updates (realtime) as orders come in / change
+- Export orders (share as CSV/file) — mobile equivalent of the web Excel export
+- Manage admins: add / remove (remove-self blocked) via a secure Edge Function
 
-**Why customer-first:** the customer flow is what benefits from being a native app
-(push notifications, home-screen icon, fast ordering). The owner uses one device and
-the web admin already works great on a phone browser.
+**Role-based app:** after login the app checks `admin_users`. Admins land in the
+**Admin area**; customers land in the **customer tabs**. One binary, two experiences —
+the same person could even have both (an admin can still place orders). See §10.
+
+> **Backend impact:** almost all admin actions already work on mobile through RLS +
+> the admin's own session (no service-role key). The **only** new backend piece is a
+> Supabase **Edge Function** for add/remove-admin (which needs the service-role key
+> server-side). This Edge Function also lets the **web** drop its two Next.js admin
+> API routes later, unifying both platforms. See [§4.2](#4-critical-architecture-decisions).
 
 ---
 
@@ -135,10 +143,38 @@ using nodemailer. A mobile app has no server. Two options:
 
 ➡️ **v1 uses Option A.** Flagged as a follow-up to migrate to Option B.
 
-### 4.2 Admin features
-Admin create/delete and route protection use the **service-role key** (server-only).
-Do **not** ship the service-role key in the mobile binary. ➡️ **Admin stays on web**
-for v1. (Phase 2 option in §18 if needed: a secured Edge Function for admin actions.)
+### 4.2 Admin features (admin is on BOTH platforms)
+Split admin actions into two buckets:
+
+**Bucket A — works on mobile with NO new backend (via RLS + admin session):**
+- View **all** orders, search/filter (RLS policy "admins read all orders" via `is_admin()`)
+- **Change order status** (RLS "admins update orders")
+- Totals per meat type (computed client-side from the orders, like web)
+- Read the admin list (RLS "admins read admin list")
+- Realtime on `orders`
+
+These are plain `supabase-js` calls authenticated with the admin's normal session —
+the **web dashboard itself uses the anon-key client, not the service-role key**, so
+mobile does exactly the same. ✅ Zero backend changes for the whole dashboard.
+
+**Bucket B — needs the service-role key (must NOT ship in the app):**
+- **Create admin** (creates an `auth.users` record via Admin API) and **delete admin**
+  (removes auth user + `admin_users` row).
+
+The web does Bucket B through two **Next.js API routes** that authenticate via the
+SSR **cookie**. Mobile has a **Bearer token**, not a cookie, so it can't reuse those
+as-is. ➡️ **Solution: one Supabase Edge Function `admin-manage`** that:
+1. Receives the caller's JWT (`Authorization: Bearer <access_token>`)
+2. Verifies the caller is an admin (`is_admin(auth.uid())`)
+3. Uses the **service-role key (server-side, inside the function)** to create/delete
+4. Returns success/error
+
+Both **mobile and web** call this same function with their auth token. This is the
+proper cross-platform pattern and lets the web later retire its two API routes.
+The service-role key lives only in the Edge Function's secrets — never in any client.
+
+> Net: building admin-on-both adds **one Edge Function** (for add/remove admin). The
+> entire order dashboard needs no backend work.
 
 ### 4.3 Auth session persistence
 In React Native, `supabase-js` needs an explicit storage adapter or the user is
@@ -179,10 +215,14 @@ npx tailwindcss init                                   # creates tailwind.config
 npx expo install expo-font @expo-google-fonts/fraunces @expo-google-fonts/plus-jakarta-sans
 npm install date-fns
 
-# 5. (optional) push notifications
-npx expo install expo-notifications expo-device
+# 5. UI bits used by customer + admin
+npx expo install expo-linear-gradient @react-native-community/datetimepicker
+npx expo install @react-native-picker/picker expo-sharing expo-file-system  # admin status picker + CSV export
 
-# 6. Run it — scan the QR with Expo Go on your phone
+# 6. (optional) push notifications + PDF print
+npx expo install expo-notifications expo-device expo-print
+
+# 7. Run it — scan the QR with Expo Go on your phone
 npx expo start
 ```
 
@@ -234,7 +274,7 @@ mobile/
     register.tsx
     verify-email.tsx
     forgot-password.tsx
-    (tabs)/                     # authenticated customer area (bottom tabs)
+    (tabs)/                     # authenticated CUSTOMER area (bottom tabs)
       _layout.tsx               # Tab navigator (Order | My Orders | Profile)
       order.tsx                 # the order form (home)
       orders.tsx                # My Orders list
@@ -242,6 +282,11 @@ mobile/
     order/
       success.tsx               # order placed confirmation
       [id].tsx                  # order detail (optional)
+    (admin)/                    # authenticated ADMIN area (bottom tabs, admins only)
+      _layout.tsx               # Tab navigator (Orders | Admins | Account); guards is_admin
+      dashboard.tsx             # all orders + search/filter/totals + status change
+      admins.tsx                # add / remove admins (calls admin-manage Edge Function)
+      account.tsx               # admin email + sign out
   src/
     lib/
       supabase.ts               # supabase client w/ AsyncStorage (see §9.3)
@@ -259,7 +304,12 @@ mobile/
       Screen.tsx                # safe-area + cream background wrapper
       WhatsAppButton.tsx
       Skeleton.tsx              # shimmer loading
-    context/AuthContext.tsx     # session state + helpers
+      OrderRow.tsx              # admin: one order row (customer, meats, status picker)
+      TotalsPanel.tsx           # admin: pounds-per-meat totals (mirrors web)
+    lib/
+      adminApi.ts               # calls the admin-manage Edge Function w/ the JWT
+      exportCsv.ts              # build CSV + share via expo-sharing (mobile "Export")
+    context/AuthContext.tsx     # session + role (isAdmin) state + helpers
   tailwind.config.js            # NativeWind theme = Premium Butcher palette
   global.css                    # NativeWind directives
   .env
@@ -371,17 +421,30 @@ Not signed in:
   /login ↔ /register ↔ /forgot-password
   /register → /verify-email → /login
 
-Signed in (bottom tab bar):
-  (tabs)/order      "Order"      🥩  — place a reservation (default tab)
-  (tabs)/orders     "My Orders"  📋  — order history + live status
-  (tabs)/profile    "Account"    👤  — email, sign out
+Signed in — role decides the area (checked once on login via admin_users):
+
+  CUSTOMER → (tabs) bottom bar:
+    (tabs)/order      "Order"      🥩  — place a reservation (default)
+    (tabs)/orders     "My Orders"  📋  — history + live status
+    (tabs)/profile    "Account"    👤  — email, sign out
+
+  ADMIN → (admin) bottom bar:
+    (admin)/dashboard "Orders"     📊  — all orders, search/filter/totals, status change
+    (admin)/admins    "Admins"     👥  — add/remove admins
+    (admin)/account   "Account"    👤  — email, sign out
 
   order flow: (tabs)/order → submit → /order/success → back to tabs
-  list flow:  (tabs)/orders → /order/[id] (optional detail)
 ```
 
-The root `app/_layout.tsx` loads fonts, mounts `AuthContext`, and redirects based on
-`supabase.auth.getSession()` (and subscribes to `onAuthStateChange`).
+**Role routing:** `AuthContext` resolves `isAdmin` after sign-in by querying
+`admin_users` (`select id where id = auth.uid()` — RLS allows this). `index.tsx`
+redirects: no session → `/login`; admin → `(admin)/dashboard`; else → `(tabs)/order`.
+Each area's `_layout.tsx` re-guards (admins-only / signed-in-only) so deep links can't
+bypass it. The root `app/_layout.tsx` loads fonts, mounts `AuthContext`, and subscribes
+to `onAuthStateChange`.
+
+> Optional nicety: since an admin may also want to place a personal order, the admin
+> Account screen can have a "Switch to ordering" link into `(tabs)/order`.
 
 ---
 
@@ -446,10 +509,70 @@ Each screen maps 1:1 to a web surface so behavior stays consistent.
 - WhatsApp share button (shares the order-page link, like web header)
 - App version
 
-### 11.11 Shared components to port
+### 11.11 Admin Login
+- The **same** `login.tsx` is used. After `signInWithPassword`, `AuthContext` checks
+  `admin_users`; if the user is an admin, routing sends them to `(admin)/dashboard`
+  instead of the customer tabs. (Mirrors the web admin-login admin check — no separate
+  admin login screen needed, but you may add one at `/admin-login` if you prefer a
+  distinct entry point.)
+
+### 11.12 Admin Dashboard (`app/(admin)/dashboard.tsx`) ← mirrors `admin/dashboard/page.tsx`
+- `supabase.from('orders').select('*').order('created_at',{ascending:false})` — RLS
+  returns **all** orders because the user is an admin (no service-role key).
+- **TotalsPanel** (port of web): pounds per meat type; follows the date filter
+  (overall by default, that day's totals when a date is picked) + grand total.
+- Controls: search (name/phone/email), status filter, date filter — same logic as web.
+- Each order = `OrderRow`: customer, pickup date, meat chips, notes, `StatusBadge`,
+  and a **status picker** (mobile equivalent of the web dropdown — `@react-native-picker/picker`
+  or an action sheet) → `supabase.from('orders').update({status}).eq('id', id)`
+  (RLS "admins update orders"). Forward **and** backward, like web.
+- **Realtime** + pull-to-refresh; **Skeleton** while loading.
+- **Export**: `exportCsv.ts` builds a CSV of the filtered orders and shares it via
+  `expo-sharing` (mobile analogue of the web Excel export). *(Print is web-only;
+  optional PDF via `expo-print` if the client wants it.)*
+
+### 11.13 Admin — Manage Admins (`app/(admin)/admins.tsx`) ← mirrors `admin/admins/page.tsx`
+- List current admins from `admin_users` (RLS "admins read admin list"); show "You"
+  badge on own row; **no Remove button on own row** (same self-protection as web).
+- **Add admin** (email + password) and **Remove admin** call the **`admin-manage`
+  Edge Function** via `adminApi.ts` (passes the admin's `access_token` as Bearer).
+  The function verifies `is_admin`, then uses the service-role key to create/delete.
+- Success/error banners (warm styling, like web).
+
+### 11.14 Admin — Account (`app/(admin)/account.tsx`)
+- Admin email, "Sign out", app version, optional "Switch to ordering" link.
+
+### 11.15 Backend: `admin-manage` Edge Function (the ONE new backend piece)
+`supabase/functions/admin-manage/index.ts` (Deno) — deployed via
+`supabase functions deploy admin-manage`. Outline:
+```ts
+// pseudo-outline
+serve(async (req) => {
+  const jwt = req.headers.get('Authorization')?.replace('Bearer ', '')
+  // 1) client bound to caller's JWT — verify they're an admin
+  const caller = createClient(URL, ANON, { global:{ headers:{ Authorization:`Bearer ${jwt}` } } })
+  const { data:{ user } } = await caller.auth.getUser()
+  const { data: isAdmin } = await caller.rpc('is_admin', { uid: user.id })  // or select admin_users
+  if (!user || !isAdmin) return json({ error:'Unauthorized' }, 401)
+
+  // 2) service-role client (key from function secrets) does the privileged work
+  const admin = createClient(URL, SERVICE_ROLE_KEY)
+  const { action, email, password, userId } = await req.json()
+  if (action === 'create') { /* admin.auth.admin.createUser + insert admin_users */ }
+  if (action === 'delete') { /* block self; admin_users delete + auth.admin.deleteUser */ }
+  return json({ success:true })
+})
+```
+- Secrets: `supabase secrets set SERVICE_ROLE_KEY=... ` (already have `SUPABASE_URL`,
+  `ANON` available). Add this to `HANDOVER.md` deploy steps.
+- This is **not SQL** — it does NOT go in `migrations/` (per CLAUDE.md); it lives in
+  `supabase/functions/` and is deployed with the Supabase CLI.
+
+### 11.16 Shared components to port
 - `StatusBadge` (color map from web), `PasswordInput` (eye toggle), `Button`
   (wine gradient + press scale), `Field`, `Screen` (SafeArea + cream bg),
-  `WhatsAppButton` (`Linking.openURL('https://wa.me/?text=...')`), `Skeleton`.
+  `WhatsAppButton` (`Linking.openURL('https://wa.me/?text=...')`), `Skeleton`,
+  `OrderRow` + `TotalsPanel` (admin).
 
 ---
 
@@ -546,34 +669,44 @@ eas submit --platform ios
 
 ## 17. Phased Timeline (~6 days)
 
+Admin-on-both adds ~1.5 days, so plan for ~7 days (or trim the optional items).
+
 | Day | Deliverable |
 |---|---|
 | **1** | Scaffold Expo + Expo Router + NativeWind; port theme, fonts, types, constants, supabase client (AsyncStorage); app boots on phone with Premium Butcher styling. |
-| **2** | Auth: login, register, verify-email, forgot-password; AuthContext + session gating; redirects working. |
-| **3** | Order form: fields, date picker, 6 MeatCounters, validation, total; insert order + email; success screen. |
-| **4** | My Orders: list, StatusBadge, StatusProgress, skeleton, empty state, realtime, pull-to-refresh; Profile/sign out. |
-| **5** | Polish: motion, WhatsApp share, edge cases, end-to-end manual test on device; fix bugs. |
-| **6** | EAS build (Android APK + iOS), install on real devices, smoke test, store assets, hand off. *(Stretch: push notifications.)* |
+| **2** | Auth: login, register, verify-email, forgot-password; `AuthContext` with **role (isAdmin)** resolution + role-based routing/guards. |
+| **3** | Customer order form: fields, date picker, 6 MeatCounters, validation, total; insert order + email; success screen. |
+| **4** | Customer My Orders: list, StatusBadge, StatusProgress, skeleton, empty state, realtime, pull-to-refresh; Profile/sign out. |
+| **5** | **Admin dashboard:** all orders, TotalsPanel, search/status/date filters, status change, realtime, CSV export. |
+| **6** | **Admin manage-admins** + deploy `admin-manage` **Edge Function**; admin account; polish, WhatsApp share, motion; full E2E manual test (both roles) on device. |
+| **7** | EAS build (Android APK + iOS), install on real devices, smoke test both roles, store assets, hand off. *(Stretch: push notifications.)* |
 
 ---
 
 ## 18. Decisions to Confirm
 
-1. **Admin on mobile?** v1 keeps admin on web (recommended). If the client wants
-   mobile admin → Phase 2 via a secured Edge Function (never ship the service-role key).
+1. ~~Admin on mobile?~~ **DECIDED: admin on BOTH.** The app is role-based (customer
+   tabs vs admin tabs). Dashboard works via RLS; add/remove-admin via the new
+   `admin-manage` Edge Function. (See §1, §4.2, §11.12–11.15.)
 2. **Email path** — confirm v1 = call the existing Vercel endpoint (yes/no); plan v2 = Edge Function.
 3. **Push notifications** — in v1 or Phase 2? (Recommended Phase 2.)
 4. **Deep linking** for email confirm/reset — simple web-link flow for v1, or set up
    `ahadu://` deep links now?
 5. **Store accounts** — who owns the Apple Developer + Play Console accounts (client vs you)?
 6. **App identity** — final app name, icon, splash, bundle IDs.
+7. **Web admin routes** — after `admin-manage` Edge Function exists, optionally retire
+   the web's `create-user`/`delete-user` Next.js routes so both platforms share one path.
 
 ---
 
 ## 19. Handover Notes
 
-- The mobile app is **additive** — it reuses the same Supabase project, so no DB
-  changes are required for v1 (except the optional `push_token` storage if doing §13).
+- The mobile app is **additive** — it reuses the same Supabase project. No DB schema
+  changes are required (except the optional `push_token` storage if doing §13). The
+  one new backend artifact is the **`admin-manage` Edge Function** (for add/remove
+  admin) — deploy it with `supabase functions deploy admin-manage` and set its
+  `SERVICE_ROLE_KEY` secret. Add this to `HANDOVER.md`'s deploy steps. (It's an Edge
+  Function, not SQL, so it does NOT go in `migrations/`.)
 - Anon key ships in the app (safe; RLS-protected). **Service-role key must never** be
   in the mobile app.
 - Keep `src/lib/constants.ts` and `src/types/index.ts` **in sync** with the web app —
