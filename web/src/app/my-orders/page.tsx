@@ -45,7 +45,6 @@ export default function MyOrdersPage() {
     return (
       <div className="min-h-screen">
         <header className="bg-wine-700 text-cream-50">
-          <div className="h-1 bg-linear-to-r from-brass-600 via-brass-400 to-brass-600" />
           <div className="max-w-4xl mx-auto px-4 py-4 h-14" />
         </header>
         <div className="max-w-4xl mx-auto px-4 py-8 space-y-4">
@@ -62,7 +61,6 @@ export default function MyOrdersPage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-wine-700/95 text-cream-50 shadow-warm-lg backdrop-blur-md">
-        <div className="h-1 bg-linear-to-r from-brass-600 via-brass-400 to-brass-600" />
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-full bg-linear-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-bold text-lg text-wine-800 ring-2 ring-cream-50/20 transition-transform duration-500 group-hover:scale-105">A</div>

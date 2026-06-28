@@ -29,8 +29,6 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-wine-700/95 text-cream-50 shadow-warm-lg backdrop-blur-md">
-      {/* thin brass top line */}
-      <div className="h-1 bg-linear-to-r from-brass-600 via-brass-400 to-brass-600" />
       <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-12 h-12 rounded-full bg-linear-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-bold text-xl text-wine-800 shadow-inner ring-2 ring-cream-50/20 transition-transform duration-500 group-hover:scale-105">

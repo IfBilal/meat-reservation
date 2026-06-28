@@ -16,7 +16,6 @@ export function AdminHeader() {
 
   return (
     <header className="bg-wine-700 text-cream-50 shadow-warm print:hidden">
-      <div className="h-1 bg-linear-to-r from-brass-600 via-brass-400 to-brass-600" />
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-2.5">
