@@ -72,7 +72,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <TotalsPanel orders={orders} />
+      <TotalsPanel orders={filtered} dateFilter={dateFilter || undefined} />
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3 mb-5 print:hidden">
