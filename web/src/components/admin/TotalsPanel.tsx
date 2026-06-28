@@ -20,19 +20,19 @@ export function TotalsPanel({ orders, dateFilter }: { orders: Order[]; dateFilte
     : 'Total Pounds per Meat Type (All Orders)'
 
   return (
-    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+    <div className="bg-linear-to-br from-cream-50 to-cream-100 rounded-2xl p-5 ring-1 ring-cream-300 shadow-warm mb-6">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 className="text-xs font-semibold text-warmgray-500 uppercase tracking-wider">
           {heading}
         </h2>
-        <span className="text-sm font-semibold text-[#8B0000]">{grandTotal} lbs total</span>
+        <span className="text-sm font-semibold text-wine-700 bg-wine-50 ring-1 ring-wine-100 px-3 py-1 rounded-full">{grandTotal} lbs total</span>
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {totals.map(({ label, total }) => (
-          <div key={label} className="text-center">
-            <p className="text-xs text-gray-500 mb-1">{label}</p>
-            <p className="text-2xl font-bold text-[#8B0000]">{total}</p>
-            <p className="text-xs text-gray-400">lbs</p>
+          <div key={label} className={`text-center rounded-xl py-3 transition-colors ${total > 0 ? 'bg-cream-50 ring-1 ring-cream-300' : ''}`}>
+            <p className="text-xs text-warmgray-500 mb-1">{label}</p>
+            <p className={`font-display text-2xl font-bold ${total > 0 ? 'text-wine-700' : 'text-warmgray-400'}`}>{total}</p>
+            <p className="text-xs text-warmgray-400">lbs</p>
           </div>
         ))}
       </div>

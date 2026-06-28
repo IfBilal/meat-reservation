@@ -76,35 +76,43 @@ export default function AdminsPage() {
     fetchAdmins()
   }
 
-  const inputClass = 'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow text-sm'
+  const inputClass = 'w-full border border-cream-300 bg-cream-50 rounded-xl px-4 py-2.5 text-charcoal placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all text-sm'
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Users</h1>
-      <p className="text-gray-500 text-sm mb-6">Manage who has access to this admin panel.</p>
+    <div className="max-w-2xl animate-fade-in-up">
+      <h1 className="font-display text-3xl font-semibold text-wine-700 mb-1">Admin users</h1>
+      <p className="text-warmgray-500 text-sm mb-6">Manage who has access to this admin panel.</p>
 
       {/* Current admins */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mb-6">
-        <div className="px-5 py-4 border-b border-gray-50">
-          <h2 className="font-semibold text-gray-800">Current Admins</h2>
+      <div className="bg-cream-50 rounded-2xl ring-1 ring-cream-300 shadow-warm mb-6">
+        <div className="px-5 py-4 border-b border-cream-200">
+          <h2 className="font-display font-semibold text-charcoal">Current admins</h2>
         </div>
         {loading ? (
-          <div className="px-5 py-8 text-center text-gray-400 text-sm">Loading...</div>
+          <div className="px-5 py-5 space-y-3">
+            <div className="skeleton h-6 w-full" />
+            <div className="skeleton h-6 w-3/4" />
+          </div>
         ) : (
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-cream-200">
             {admins.map(admin => (
               <li key={admin.id} className="px-5 py-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">{admin.email}</p>
-                  {admin.id === currentUserId && (
-                    <span className="text-xs text-[#8B0000] font-medium">You</span>
-                  )}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-linear-to-br from-brass-300 to-brass-500 flex items-center justify-center font-display font-bold text-wine-800 text-sm uppercase">
+                    {admin.email.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-charcoal">{admin.email}</p>
+                    {admin.id === currentUserId && (
+                      <span className="text-xs text-brass-600 font-semibold">You</span>
+                    )}
+                  </div>
                 </div>
                 {admin.id !== currentUserId && (
                   <button
                     onClick={() => handleRemove(admin)}
                     disabled={removingId === admin.id}
-                    className="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 text-xs font-medium transition-colors"
+                    className="px-3 py-1.5 rounded-lg border border-wine-200 text-wine-600 hover:bg-wine-50 disabled:opacity-40 text-xs font-medium transition-colors"
                   >
                     {removingId === admin.id ? 'Removing…' : 'Remove'}
                   </button>
@@ -117,20 +125,20 @@ export default function AdminsPage() {
 
       {/* Notifications */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700 mb-4">{error}</div>
+        <div className="bg-wine-50 border border-wine-100 rounded-xl px-4 py-3 text-sm text-wine-700 mb-4 animate-scale-in">{error}</div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700 mb-4">{success}</div>
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 mb-4 animate-scale-in">{success}</div>
       )}
 
       {/* Add admin */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="px-5 py-4 border-b border-gray-50">
-          <h2 className="font-semibold text-gray-800">Add New Admin</h2>
+      <div className="bg-cream-50 rounded-2xl ring-1 ring-cream-300 shadow-warm">
+        <div className="px-5 py-4 border-b border-cream-200">
+          <h2 className="font-display font-semibold text-charcoal">Add new admin</h2>
         </div>
         <form onSubmit={handleCreate} className="px-5 py-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
             <input
               type="email"
               required
@@ -141,7 +149,7 @@ export default function AdminsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-semibold text-charcoal mb-1.5">Password</label>
             <PasswordInput
               required
               minLength={6}
@@ -154,9 +162,9 @@ export default function AdminsPage() {
           <button
             type="submit"
             disabled={creating}
-            className="w-full py-2.5 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] disabled:bg-gray-400 text-white font-semibold text-sm transition-colors"
+            className="w-full py-3 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold text-sm transition-all shadow-warm"
           >
-            {creating ? 'Creating…' : 'Create Admin'}
+            {creating ? 'Creating…' : 'Create admin'}
           </button>
         </form>
       </div>

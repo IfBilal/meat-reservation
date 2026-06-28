@@ -39,57 +39,60 @@ export default function RegisterPage() {
 
   if (verifyEmail) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 text-3xl">
+      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-wine-100/40 blur-3xl" />
+        <div className="w-full max-w-md text-center relative animate-scale-in">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-brass-300 to-brass-500 flex items-center justify-center mx-auto mb-5 text-3xl shadow-warm ring-2 ring-cream-50 animate-floaty">
             📬
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-          <p className="text-gray-500 mb-1">We sent a verification link to:</p>
-          <p className="font-semibold text-gray-800 mb-6">{verifyEmail}</p>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-left space-y-3 mb-6">
-            <p className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">✓</span>
+          <h1 className="font-display text-3xl font-semibold text-wine-700 mb-2">Check your email</h1>
+          <p className="text-warmgray-500 mb-1">We sent a verification link to:</p>
+          <p className="font-semibold text-charcoal mb-6">{verifyEmail}</p>
+          <div className="bg-cream-50 rounded-2xl ring-1 ring-cream-300 shadow-warm p-6 text-left space-y-3 mb-6">
+            <p className="text-sm text-warmgray-600 flex items-start gap-2">
+              <span className="text-brass-600 mt-0.5">✓</span>
               Open the email from Ahadu Fresh Meat
             </p>
-            <p className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">✓</span>
-              Click the <span className="font-semibold">"Confirm your email"</span> link
+            <p className="text-sm text-warmgray-600 flex items-start gap-2">
+              <span className="text-brass-600 mt-0.5">✓</span>
+              Click the <span className="font-semibold text-charcoal">&quot;Confirm your email&quot;</span> link
             </p>
-            <p className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">✓</span>
+            <p className="text-sm text-warmgray-600 flex items-start gap-2">
+              <span className="text-brass-600 mt-0.5">✓</span>
               Then sign in with your new account
             </p>
           </div>
           <button
             onClick={() => router.push('/login')}
-            className="w-full py-3 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] text-white font-semibold transition-colors"
+            className="w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 text-cream-50 font-semibold transition-all shadow-warm"
           >
-            Go to Sign In
+            Go to sign in
           </button>
-          <p className="text-xs text-gray-400 mt-4">Didn&apos;t receive it? Check your spam folder.</p>
+          <p className="text-xs text-warmgray-400 mt-4">Didn&apos;t receive it? Check your spam folder.</p>
         </div>
       </div>
     )
   }
 
-  const inputClass = 'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow'
+  const inputClass = 'w-full border border-cream-300 rounded-xl px-4 py-3 text-charcoal placeholder-warmgray-400 bg-cream-50 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all'
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden">
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-wine-100/40 blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-brass-300/20 blur-3xl" />
+      <div className="w-full max-w-md relative animate-fade-in-up">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-[#8B0000] flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">A</span>
+          <div className="w-16 h-16 rounded-full bg-linear-to-br from-brass-400 to-brass-600 flex items-center justify-center mx-auto mb-4 shadow-warm ring-2 ring-cream-50">
+            <span className="font-display text-wine-800 text-2xl font-bold">A</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-500 text-sm mt-1">Register to place and track your orders</p>
+          <h1 className="font-display text-3xl font-semibold text-wine-700">Create your account</h1>
+          <p className="text-warmgray-500 text-sm mt-1.5">Register to place and track your orders</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-cream-50 rounded-3xl shadow-warm-lg ring-1 ring-cream-300 p-8">
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-semibold text-charcoal mb-1.5">Full Name</label>
               <input
                 type="text"
                 required
@@ -101,7 +104,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
               <input
                 type="email"
                 required
@@ -113,7 +116,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-semibold text-charcoal mb-1.5">Password</label>
               <PasswordInput
                 required
                 minLength={6}
@@ -126,13 +129,13 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{error}</div>
+              <div className="bg-wine-50 border border-wine-100 rounded-xl px-4 py-3 text-sm text-wine-700 animate-scale-in">{error}</div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] disabled:bg-gray-400 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+              className="group w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-warm"
             >
               {loading ? (
                 <>
@@ -140,19 +143,24 @@ export default function RegisterPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
-                  Creating account...
+                  Creating account…
                 </>
-              ) : 'Create Account'}
+              ) : (
+                <>
+                  <span>Create account</span>
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </>
+              )}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-warmgray-500 mt-6">
             Already have an account?{' '}
-            <Link href="/login" className="text-[#8B0000] font-medium hover:underline">Sign in</Link>
+            <Link href="/login" className="text-wine-600 font-semibold hover:text-wine-700 hover:underline">Sign in</Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">Ahadu Fresh Meat Reservation</p>
+        <p className="text-center text-xs text-warmgray-400 mt-6 tracking-wide">Ahadu Fresh Meat · Reserve your cut</p>
       </div>
     </div>
   )

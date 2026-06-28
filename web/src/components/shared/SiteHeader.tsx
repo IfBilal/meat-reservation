@@ -28,17 +28,19 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="bg-[#8B0000] text-white shadow-lg">
-      <div className="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-xl shadow-inner">
+    <header className="sticky top-0 z-30 bg-wine-700/95 text-cream-50 shadow-warm-lg backdrop-blur-md">
+      {/* thin brass top line */}
+      <div className="h-1 bg-linear-to-r from-brass-600 via-brass-400 to-brass-600" />
+      <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 rounded-full bg-linear-to-br from-brass-400 to-brass-600 flex items-center justify-center font-display font-bold text-xl text-wine-800 shadow-inner ring-2 ring-cream-50/20 transition-transform duration-500 group-hover:scale-105">
             A
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">Ahadu Fresh Meat</h1>
-            <p className="text-red-200 text-xs">Reserve your order online</p>
+            <h1 className="font-display text-xl font-semibold tracking-tight leading-none">Ahadu Fresh Meat</h1>
+            <p className="text-brass-300 text-xs mt-1 tracking-wide">Reserve your cut · pick up fresh</p>
           </div>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
           <WhatsAppButton />
@@ -46,13 +48,13 @@ export function SiteHeader() {
             <div className="flex items-center gap-3">
               <Link
                 href="/my-orders"
-                className="text-sm text-red-100 hover:text-white transition-colors hidden sm:block"
+                className="text-sm text-cream-100 hover:text-white transition-colors hidden sm:block relative after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-brass-400 after:transition-all hover:after:w-full"
               >
                 My Orders
               </Link>
               <button
                 onClick={handleSignOut}
-                className="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-sm bg-cream-50/10 hover:bg-cream-50/20 px-3.5 py-1.5 rounded-full transition-colors ring-1 ring-cream-50/15"
               >
                 Sign Out
               </button>
@@ -61,13 +63,13 @@ export function SiteHeader() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="text-sm text-red-100 hover:text-white transition-colors"
+                className="text-sm text-cream-100 hover:text-white transition-colors px-2"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="text-sm bg-white text-[#8B0000] font-semibold px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                className="text-sm bg-linear-to-br from-brass-400 to-brass-600 text-wine-800 font-semibold px-4 py-1.5 rounded-full hover:shadow-warm hover:brightness-105 transition-all"
               >
                 Register
               </Link>

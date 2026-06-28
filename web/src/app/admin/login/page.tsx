@@ -43,22 +43,26 @@ export default function AdminLoginPage() {
     router.refresh()
   }
 
+  const inputClass = 'w-full border border-cream-300 rounded-xl px-4 py-3 text-charcoal placeholder-warmgray-400 bg-cream-50 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all'
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-wine-100/40 blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-brass-300/20 blur-3xl" />
+      <div className="w-full max-w-md relative animate-fade-in-up">
         {/* Logo area */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-[#8B0000] flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">A</span>
+          <div className="w-16 h-16 rounded-full bg-linear-to-br from-brass-400 to-brass-600 flex items-center justify-center mx-auto mb-4 shadow-warm ring-2 ring-cream-50">
+            <span className="font-display text-wine-800 text-2xl font-bold">A</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Ahadu Admin</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to manage orders</p>
+          <h1 className="font-display text-3xl font-semibold text-wine-700">Ahadu Admin</h1>
+          <p className="text-warmgray-500 text-sm mt-1.5">Sign in to manage orders</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-cream-50 rounded-3xl shadow-warm-lg ring-1 ring-cream-300 p-8">
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
               <input
                 type="email"
                 required
@@ -66,24 +70,24 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="admin@example.com"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow"
+                className={inputClass}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-semibold text-charcoal mb-1.5">Password</label>
               <PasswordInput
                 required
                 autoComplete="current-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-shadow"
+                className={inputClass}
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+              <div className="bg-wine-50 border border-wine-100 rounded-xl px-4 py-3 text-sm text-wine-700 animate-scale-in">
                 {error}
               </div>
             )}
@@ -91,7 +95,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-[#8B0000] hover:bg-[#6b0000] disabled:bg-gray-400 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-warm"
             >
               {loading ? (
                 <>
@@ -99,14 +103,14 @@ export default function AdminLoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
-                  Signing in...
+                  Signing in…
                 </>
-              ) : 'Sign In'}
+              ) : 'Sign in'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">Ahadu Fresh Meat — Admin Portal</p>
+        <p className="text-center text-xs text-warmgray-400 mt-6 tracking-wide">Ahadu Fresh Meat — Admin Portal</p>
       </div>
     </div>
   )

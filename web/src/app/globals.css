@@ -1,7 +1,62 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Ahadu Fresh Meat — "Premium Butcher" design system
+   Warm cream + deep wine red + brass/gold, serif display.
+   ============================================================ */
+
+@theme {
+  /* Fonts */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* Brand palette */
+  --color-cream-50:  #FDFBF7;
+  --color-cream-100: #FAF6F0;
+  --color-cream-200: #F3ECE1;
+  --color-cream-300: #E9DECF;
+
+  --color-wine-50:  #FBF1F2;
+  --color-wine-100: #F6DFE2;
+  --color-wine-300: #D98A95;
+  --color-wine-500: #A82234;
+  --color-wine-600: #8A1A29;
+  --color-wine-700: #7A1420;
+  --color-wine-800: #5E0F19;
+
+  --color-brass-300: #E2C98F;
+  --color-brass-400: #D4B16A;
+  --color-brass-500: #C8A35B;
+  --color-brass-600: #A9863F;
+
+  --color-charcoal: #1F1A17;
+  --color-warmgray-400: #A89C8E;
+  --color-warmgray-500: #8A7E70;
+  --color-warmgray-600: #6B6157;
+
+  /* Easing */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream-100);
+  color: var(--color-charcoal);
+}
+
+/* Display serif helper */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* ---------- Motion ---------- */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -10,21 +65,73 @@
   to   { opacity: 1; }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease both;
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease both;
+@keyframes shimmer {
+  0%   { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
 }
 
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.3s; }
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
 
+.animate-fade-in-up { animation: fadeInUp 0.6s var(--ease-out-soft) both; }
+.animate-fade-in    { animation: fadeIn 0.5s ease both; }
+.animate-scale-in   { animation: scaleIn 0.45s var(--ease-out-soft) both; }
+.animate-floaty     { animation: floaty 4s ease-in-out infinite; }
+
+.stagger-1 { animation-delay: 0.06s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.18s; }
+.stagger-4 { animation-delay: 0.24s; }
+.stagger-5 { animation-delay: 0.30s; }
+.stagger-6 { animation-delay: 0.36s; }
+
+/* Smooth, premium default transitions on interactive elements */
+button, a, input, select, textarea {
+  transition-timing-function: var(--ease-out-soft);
+}
+
+/* Card lift on hover */
+.card-lift {
+  transition: transform 0.4s var(--ease-out-soft), box-shadow 0.4s var(--ease-out-soft);
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -16px rgba(94, 15, 25, 0.22);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, #efe7da 25%, #f7f1e8 37%, #efe7da 63%);
+  background-size: 936px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 0.75rem;
+}
+
+/* Warm soft shadow utility */
+.shadow-warm {
+  box-shadow: 0 8px 30px -12px rgba(94, 15, 25, 0.14);
+}
+.shadow-warm-lg {
+  box-shadow: 0 24px 60px -24px rgba(94, 15, 25, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Print ---------- */
 @media print {
   .print-hidden,
   header,

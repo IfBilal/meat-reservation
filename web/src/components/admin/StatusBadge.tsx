@@ -2,10 +2,10 @@ import { OrderStatus } from '@/types'
 import { STATUS_LABELS } from '@/lib/constants'
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
-  pending:   'bg-amber-100 text-amber-800 border border-amber-200',
-  confirmed: 'bg-blue-100 text-blue-800 border border-blue-200',
-  ready:     'bg-green-100 text-green-800 border border-green-200',
-  picked_up: 'bg-gray-100 text-gray-600 border border-gray-200',
+  pending:   'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
+  confirmed: 'bg-wine-50 text-wine-700 ring-1 ring-wine-100',
+  ready:     'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+  picked_up: 'bg-cream-200 text-warmgray-600 ring-1 ring-cream-300',
 }
 
 export function StatusBadge({ status }: { status: OrderStatus }) {
