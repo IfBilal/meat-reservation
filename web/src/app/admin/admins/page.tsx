@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { AdminUser } from '@/types'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function AdminsPage() {
   const [admins, setAdmins] = useState<AdminUser[]>([])
@@ -141,8 +142,7 @@ export default function AdminsPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={6}
               value={password}

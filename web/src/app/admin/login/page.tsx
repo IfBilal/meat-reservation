@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -71,8 +72,7 @@ export default function AdminLoginPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 autoComplete="current-password"
                 value={password}
