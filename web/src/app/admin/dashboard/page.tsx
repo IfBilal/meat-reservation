@@ -106,13 +106,13 @@ export default function DashboardPage() {
           <button
             onClick={() => exportOrdersToExcel(filtered)}
             disabled={filtered.length === 0}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-cream-300 disabled:text-warmgray-400 text-white text-sm font-medium transition-colors shadow-warm disabled:shadow-none"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-cream-300 bg-cream-50 text-charcoal hover:bg-cream-100 hover:border-wine-300 disabled:opacity-40 disabled:hover:bg-cream-50 disabled:hover:border-cream-300 text-sm font-medium transition-colors"
           >
             Export Excel
           </button>
           <button
             onClick={() => window.print()}
-            className="px-4 py-2.5 rounded-xl bg-charcoal hover:brightness-125 text-cream-50 text-sm font-medium transition-all shadow-warm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-cream-300 bg-cream-50 text-charcoal hover:bg-cream-100 hover:border-wine-300 text-sm font-medium transition-colors"
           >
             Print
           </button>

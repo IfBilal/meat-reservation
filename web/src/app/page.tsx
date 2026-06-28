@@ -72,7 +72,7 @@ export default function HomePage() {
 
       {/* Order Form */}
       <div className="max-w-3xl mx-auto px-4 pb-16 animate-fade-in-up stagger-4">
-        <div className="bg-cream-50 rounded-3xl shadow-warm-lg ring-1 ring-cream-300 overflow-hidden">
+        <div className="bg-cream-50 rounded-2xl shadow-warm-lg ring-1 ring-cream-300 overflow-hidden">
           <div className="bg-linear-to-br from-wine-700 to-wine-800 px-6 sm:px-8 py-7">
             <span className="inline-block bg-cream-50/15 ring-1 ring-cream-50/20 text-brass-300 text-xs font-semibold tracking-wide px-3 py-1 rounded-full mb-3">
               Reservation

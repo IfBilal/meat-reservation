@@ -43,7 +43,7 @@ export default function LoginPage() {
           <p className="text-warmgray-500 text-sm mt-1.5">Sign in to place and track your orders</p>
         </div>
 
-        <div className="bg-cream-50 rounded-3xl shadow-warm-lg ring-1 ring-cream-300 p-8">
+        <div className="bg-cream-50 rounded-2xl shadow-warm-lg ring-1 ring-cream-300 p-8">
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>

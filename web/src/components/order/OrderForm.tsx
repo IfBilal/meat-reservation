@@ -218,7 +218,7 @@ export function OrderForm() {
       <button
         type="submit"
         disabled={loading}
-        className="group w-full py-4 rounded-2xl bg-linear-to-br from-wine-600 to-wine-800 hover:from-wine-700 hover:to-wine-800 active:scale-[0.98] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 text-base font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-warm-lg ring-1 ring-wine-800/30"
+        className="group w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-warm"
       >
         {loading ? (
           <>

@@ -76,7 +76,7 @@ export default function AdminsPage() {
     fetchAdmins()
   }
 
-  const inputClass = 'w-full border border-cream-300 bg-cream-50 rounded-xl px-4 py-2.5 text-charcoal placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all text-sm'
+  const inputClass = 'w-full border border-cream-300 bg-cream-50 rounded-xl px-4 py-3 text-charcoal placeholder-warmgray-400 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all'
 
   return (
     <div className="max-w-2xl animate-fade-in-up">
@@ -162,7 +162,7 @@ export default function AdminsPage() {
           <button
             type="submit"
             disabled={creating}
-            className="w-full py-3 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold text-sm transition-all shadow-warm"
+            className="w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold transition-all duration-300 shadow-warm"
           >
             {creating ? 'Creating…' : 'Create admin'}
           </button>

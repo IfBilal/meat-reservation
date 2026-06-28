@@ -80,13 +80,13 @@ export default function MyOrdersPage() {
         </div>
 
         {orders.length === 0 ? (
-          <div className="bg-cream-50 rounded-3xl ring-1 ring-cream-300 shadow-warm p-16 text-center animate-fade-in-up">
+          <div className="bg-cream-50 rounded-2xl ring-1 ring-cream-300 shadow-warm p-16 text-center animate-fade-in-up">
             <div className="text-5xl mb-4 animate-floaty inline-block">🥩</div>
             <p className="font-display text-xl text-charcoal mb-2">No orders yet</p>
             <p className="text-warmgray-500 text-sm mb-6">Place your first meat reservation to see it here.</p>
             <Link
               href="/"
-              className="inline-block px-6 py-3 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 text-cream-50 font-semibold text-sm transition-all shadow-warm"
+              className="inline-block px-7 py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] text-cream-50 font-semibold transition-all duration-300 shadow-warm"
             >
               Place an order
             </Link>
