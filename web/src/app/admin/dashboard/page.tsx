@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Order, OrderStatus } from '@/types'
-import { MEAT_TYPES, STATUS_LABELS, STATUS_NEXT } from '@/lib/constants'
+import { MEAT_TYPES, STATUS_LABELS } from '@/lib/constants'
 import { StatusBadge } from '@/components/admin/StatusBadge'
 import { TotalsPanel } from '@/components/admin/TotalsPanel'
 import { exportOrdersToExcel } from '@/lib/excel'
@@ -48,11 +48,10 @@ export default function DashboardPage() {
     return matchSearch && matchStatus && matchDate
   })
 
-  async function advanceStatus(order: Order) {
-    const next = STATUS_NEXT[order.status]
-    if (!next) return
+  async function changeStatus(order: Order, status: OrderStatus) {
+    if (status === order.status) return
     setUpdatingId(order.id)
-    await supabase.from('orders').update({ status: next }).eq('id', order.id)
+    await supabase.from('orders').update({ status }).eq('id', order.id)
     setUpdatingId(null)
   }
 
@@ -157,7 +156,6 @@ export default function DashboardPage() {
                 {filtered.map(order => {
                   const meatItems = MEAT_TYPES.filter(mt => order[mt.key] > 0)
                     .map(mt => `${mt.label} ${order[mt.key]}lb`)
-                  const nextStatus = STATUS_NEXT[order.status]
 
                   return (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
@@ -185,17 +183,16 @@ export default function DashboardPage() {
                         <StatusBadge status={order.status} />
                       </td>
                       <td className="px-4 py-3 print:hidden">
-                        {nextStatus ? (
-                          <button
-                            onClick={() => advanceStatus(order)}
-                            disabled={updatingId === order.id}
-                            className="px-3 py-1.5 rounded-lg bg-[#8B0000] hover:bg-[#6b0000] disabled:bg-gray-300 text-white text-xs font-medium transition-colors whitespace-nowrap"
-                          >
-                            {updatingId === order.id ? '…' : `Mark ${STATUS_LABELS[nextStatus]}`}
-                          </button>
-                        ) : (
-                          <span className="text-gray-300 text-xs">Done</span>
-                        )}
+                        <select
+                          value={order.status}
+                          onChange={e => changeStatus(order, e.target.value as OrderStatus)}
+                          disabled={updatingId === order.id}
+                          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#8B0000] disabled:opacity-50 cursor-pointer"
+                        >
+                          {Object.entries(STATUS_LABELS).map(([k, v]) => (
+                            <option key={k} value={k}>{v}</option>
+                          ))}
+                        </select>
                       </td>
                     </tr>
                   )
