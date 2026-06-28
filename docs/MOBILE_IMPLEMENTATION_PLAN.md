@@ -348,16 +348,36 @@ module.exports = {
 }
 ```
 
-**Design rules to carry over from the web rebuild:**
-- Backgrounds: `cream-100`; cards: `cream-50` with soft shadow + `cream-300` border
-- Primary action: wine gradient (`#8A1A29 → #5E0F19`) — use `expo-linear-gradient`
-- Headings: Fraunces serif (`font-display`); body: Plus Jakarta Sans
-- Accents: brass for logo, step numbers, dividers
-- Status colors (StatusBadge): pending=amber, confirmed=wine, ready=emerald, picked_up=warm gray
-- Motion: subtle fade/scale on mount (`react-native-reanimated` `FadeInUp`), pressable
-  scale-down on buttons, skeleton shimmer for lists. Keep it tasteful (matches web choice).
+**Canonical component tokens — mirror the web exactly (post consistency-pass).**
+The web went through a consistency pass; use these *exact* canonical patterns so the
+two apps match and the mobile app stays internally consistent from day one:
+
+| Element | Canonical spec (matches web) |
+|---|---|
+| **Screen background** | `cream-100` |
+| **Card / panel** | `cream-50` bg, **`rounded-2xl`** (one radius for ALL cards — no 3xl), `cream-300` 1px border, soft warm shadow |
+| **Primary button** | wine gradient `#8A1A29→#5E0F19` (`expo-linear-gradient`), **`rounded-xl`**, vertical padding ≈ web `py-3.5` (~14px), `cream-50` text, **semibold** (not bold), subtle shadow, press → scale ~0.99 / brightness up. **One button style everywhere** (no size/weight variants). |
+| **Secondary button** | `cream-50` bg, `cream-300` border, `charcoal` text, hover/press → `cream-100` bg + `wine-300` border. Used for utility actions (e.g. Export/Share). **No green/blue.** |
+| **Text input** | `cream-50` bg, `cream-300` border, **`rounded-xl`**, padding ≈ `px-4 py-3`, focus → `wine-500` border + ring. One input style for all forms. |
+| **Label** | `text-sm font-semibold text-charcoal`, ~6px below-gap |
+| **Pill / chip / badge** | `rounded-full` |
+| **Headings** | Fraunces serif (`font-display`); page titles ≈ `text-3xl font-semibold text-wine-700`; body Plus Jakarta Sans |
+| **Accents** | brass for logo, step numbers, success medallion |
+
+**Color usage rules (no off-palette drift):**
+- Only wine / cream / brass / charcoal / warmgray for UI chrome.
+- **Green/amber are reserved strictly for status semantics**, nowhere else:
+  `StatusBadge` → pending=amber, confirmed=wine, ready=emerald, picked_up=warm gray
+  (the web success banner also uses emerald — keep that as the *only* other green).
+- Never use a green/blue button for utility actions (the web's Export button was
+  de-greened in the consistency pass — don't reintroduce it on mobile).
+
+**Motion:** subtle fade/scale on mount (`react-native-reanimated` `FadeInUp`),
+pressable scale-down on buttons, skeleton shimmer for lists. Tasteful (matches web).
 
 > Native gradients need `expo-linear-gradient` (`npx expo install expo-linear-gradient`).
+> Put these tokens in `src/lib/theme.ts` + reusable `Button`/`Field`/`Card` components
+> so there's a single source of truth and no drift (the lesson from the web pass).
 
 ---
 
