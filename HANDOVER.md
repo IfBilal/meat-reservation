@@ -7,12 +7,14 @@ fully working production deployment. Follow the steps in order.
 
 ## Overview
 
-- **Frontend:** Next.js app in the `web/` folder (deploys to Vercel)
-- **Backend:** Supabase (Postgres + Auth + RLS)
+- **Web frontend:** Next.js app in `web/` (deploys to Vercel)
+- **Mobile app:** Expo / React Native in `mobile/` (builds via EAS — see `mobile/README.md`)
+- **Backend:** Supabase (Postgres + Auth + RLS) — **shared by web and mobile**
 - **Email:** Gmail SMTP via the `/api/send-confirmation` route (nodemailer)
+- **Edge Function:** `admin-manage` (add/remove admin) — used by both web and mobile
 
 There are **three** places that hold configuration. All three must be set up:
-1. **Supabase** — database schema, RLS, Auth Site URL
+1. **Supabase** — database schema, RLS, Auth Site URL, `admin-manage` Edge Function
 2. **Vercel** — environment variables + root directory
 3. **Gmail** — an App Password for sending confirmation emails
 
@@ -78,6 +80,19 @@ from the **Admin → Admins** page in the app (no terminal needed).
 ### 1e. (Recommended) Enable leaked-password protection
 **Authentication → Policies →** enable "Leaked password protection"
 (checks passwords against HaveIBeenPwned).
+
+### 1f. Deploy the `admin-manage` Edge Function
+Add/remove-admin (web + mobile) runs through this function — it verifies the caller
+is an admin then uses the service-role key server-side. It is **not SQL** (not a
+migration); deploy it with the Supabase CLI:
+```bash
+supabase functions deploy admin-manage --project-ref YOUR-PROJECT-REF
+```
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are injected
+automatically by the Supabase platform — no manual secrets needed. The function lives
+in `supabase/functions/admin-manage/`. (Deploy with `--no-verify-jwt` is not required;
+it was deployed with verify_jwt disabled because it does its own JWT + admin check,
+which also lets browser CORS preflight through.)
 
 ---
 
@@ -150,3 +165,17 @@ cp .env.example .env.local   # then fill in real values
 npm install
 npm run dev                  # http://localhost:3000
 ```
+
+## Mobile app
+
+See **`mobile/README.md`** for full setup. Quick version:
+```bash
+cd mobile
+cp .env.example .env         # Supabase URL + anon key + endpoints
+npm install
+npx expo start               # scan QR with Expo Go on your phone
+```
+- Reuses the **same Supabase project** — no separate backend.
+- For store builds (iOS without a Mac), use **EAS Build** (`eas build ...`).
+- Set the same Supabase URL/anon key (and the client's email endpoint) for the
+  mobile `.env` / EAS secrets when handing over.
