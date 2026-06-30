@@ -1,5 +1,6 @@
 import '../global.css'
 import { useEffect } from 'react'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useFonts, Fraunces_600SemiBold } from '@expo-google-fonts/fraunces'
@@ -9,6 +10,7 @@ import {
   PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
 } from '@expo-google-fonts/plus-jakarta-sans'
+import { AuthProvider } from '../src/context/AuthContext'
 
 SplashScreen.preventAutoHideAsync().catch(() => {})
 
@@ -28,11 +30,15 @@ export default function RootLayout() {
   if (!fontsLoaded) return null
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#FAF6F0' },
-      }}
-    />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#FAF6F0' },
+          }}
+        />
+      </AuthProvider>
+    </GestureHandlerRootView>
   )
 }
