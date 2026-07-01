@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/'
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/login`)
+    return NextResponse.redirect(`${origin}/forgot-password?error=no_code`)
   }
 
   const response = NextResponse.redirect(`${origin}${next}`)
@@ -29,7 +29,14 @@ export async function GET(request: Request) {
     }
   )
 
-  await supabase.auth.exchangeCodeForSession(code)
+  const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+  if (error) {
+    console.error('[auth/callback] exchangeCodeForSession error:', error.message)
+    return NextResponse.redirect(
+      `${origin}/forgot-password?error=${encodeURIComponent(error.message)}`
+    )
+  }
 
   return response
 }
