@@ -12,6 +12,11 @@ export default function HomePage() {
   const supabase = createClient()
 
   useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('code')
+    if (code) {
+      router.replace(`/reset-password?code=${code}`)
+      return
+    }
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
         router.push('/login')
