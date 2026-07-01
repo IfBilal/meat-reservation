@@ -1,28 +1,36 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
-  const [sessionReady, setSessionReady] = useState(false)
+  const [exchanging, setExchanging] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error || !session) {
-        setError('Session could not be loaded. Please request a new reset link.')
-        return
+    const code = searchParams.get('code')
+    if (!code) {
+      setError('Invalid reset link. Please request a new one.')
+      setExchanging(false)
+      return
+    }
+
+    // Exchange must happen client-side — the PKCE verifier lives in localStorage
+    const supabase = createClient()
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        setError('This reset link has expired or already been used. Please request a new one.')
       }
-      setSessionReady(true)
+      setExchanging(false)
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -33,6 +41,7 @@ export default function ResetPasswordPage() {
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     if (password !== confirm) { setError('Passwords do not match.'); return }
     setLoading(true)
+    const supabase = createClient()
     const { error: updateError } = await supabase.auth.updateUser({ password })
     setLoading(false)
     if (updateError) { setError(updateError.message); return }
@@ -68,7 +77,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="bg-cream-50 rounded-2xl shadow-warm-lg ring-1 ring-cream-300 p-8">
-          {!sessionReady && !error ? (
+          {exchanging ? (
             <div className="flex justify-center py-6">
               <svg className="animate-spin w-8 h-8 text-wine-600" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -104,5 +113,13 @@ export default function ResetPasswordPage() {
         <p className="text-center text-xs text-warmgray-400 mt-6 tracking-wide">Ahadu Fresh Meat · Reserve your cut</p>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
