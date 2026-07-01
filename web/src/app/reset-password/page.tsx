@@ -1,38 +1,37 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 
-function ResetPasswordForm() {
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
-  const [exchanging, setExchanging] = useState(true)
+  const [sessionReady, setSessionReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
-    const code = searchParams.get('code')
-    if (!code) {
-      setError('Invalid reset link. Please request a new one.')
-      setExchanging(false)
-      return
-    }
-
-    // Exchange must happen client-side — the PKCE verifier lives in localStorage
     const supabase = createClient()
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        setError('This reset link has expired or already been used. Please request a new one.')
+
+    // With implicit flow the token arrives in the URL hash.
+    // Supabase picks it up automatically and fires PASSWORD_RECOVERY.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setSessionReady(true)
       }
-      setExchanging(false)
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // Also handle the case where the session is already set
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setSessionReady(true)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,19 +76,13 @@ function ResetPasswordForm() {
         </div>
 
         <div className="bg-cream-50 rounded-2xl shadow-warm-lg ring-1 ring-cream-300 p-8">
-          {exchanging ? (
-            <div className="flex justify-center py-6">
+          {!sessionReady ? (
+            <div className="flex flex-col items-center gap-3 py-6">
               <svg className="animate-spin w-8 h-8 text-wine-600" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
-            </div>
-          ) : error ? (
-            <div className="space-y-4">
-              <div className="bg-wine-50 border border-wine-100 rounded-xl px-4 py-3 text-sm text-wine-700">{error}</div>
-              <Link href="/forgot-password" className="block w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 text-cream-50 font-semibold text-center">
-                Request new reset link
-              </Link>
+              <p className="text-sm text-warmgray-500">Verifying reset link…</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -101,6 +94,7 @@ function ResetPasswordForm() {
                 <label className="block text-sm font-semibold text-charcoal mb-1.5">Confirm password</label>
                 <PasswordInput required autoComplete="new-password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="••••••••" className={inputClass} />
               </div>
+              {error && <div className="bg-wine-50 border border-wine-100 rounded-xl px-4 py-3 text-sm text-wine-700">{error}</div>}
               <button type="submit" disabled={loading} className="group w-full py-3.5 rounded-xl bg-linear-to-br from-wine-600 to-wine-800 hover:brightness-110 active:scale-[0.99] disabled:from-warmgray-400 disabled:to-warmgray-400 text-cream-50 font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-warm">
                 {loading ? (<><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Updating…</>) : (<><span>Update password</span><span className="transition-transform duration-300 group-hover:translate-x-1">→</span></>)}
               </button>
@@ -113,13 +107,5 @@ function ResetPasswordForm() {
         <p className="text-center text-xs text-warmgray-400 mt-6 tracking-wide">Ahadu Fresh Meat · Reserve your cut</p>
       </div>
     </div>
-  )
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense>
-      <ResetPasswordForm />
-    </Suspense>
   )
 }

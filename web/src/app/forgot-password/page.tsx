@@ -17,6 +17,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/reset-password`,
+      // implicit flow — token arrives in URL hash, no PKCE verifier needed
     })
     setLoading(false)
     if (resetError) {
