@@ -1,10 +1,19 @@
-import { View, Text } from 'react-native'
+import { View, Text, Share } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Screen } from '../../src/components/Screen'
 import { Button } from '../../src/components/Button'
 
+const APP_URL = process.env.EXPO_PUBLIC_APP_URL ?? 'https://meat-reservation.vercel.app'
+
 export default function OrderSuccess() {
   const { email } = useLocalSearchParams<{ email?: string }>()
+
+  async function handleShare() {
+    await Share.share({
+      message: `Place your Ahadu Fresh Meat order here: ${APP_URL}`,
+      url: APP_URL,
+    })
+  }
 
   return (
     <Screen className="items-center justify-center px-6">
@@ -24,6 +33,7 @@ export default function OrderSuccess() {
 
         <View className="w-full gap-3">
           <Button label="View my orders" onPress={() => router.replace('/(tabs)/orders')} />
+          <Button label="Share app with friends" onPress={handleShare} />
           <Button label="Place another order" variant="secondary" onPress={() => router.replace('/(tabs)/order')} />
         </View>
       </View>

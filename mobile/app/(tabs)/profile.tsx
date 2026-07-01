@@ -1,8 +1,10 @@
-import { View, Text } from 'react-native'
+import { View, Text, Share } from 'react-native'
 import { router } from 'expo-router'
 import { Screen } from '../../src/components/Screen'
 import { Button } from '../../src/components/Button'
 import { useAuth } from '../../src/context/AuthContext'
+
+const APP_URL = process.env.EXPO_PUBLIC_APP_URL ?? 'https://meat-reservation.vercel.app'
 
 export default function Profile() {
   const { session, signOut } = useAuth()
@@ -10,6 +12,13 @@ export default function Profile() {
   async function handleSignOut() {
     await signOut()
     router.replace('/login')
+  }
+
+  async function handleShare() {
+    await Share.share({
+      message: `Place your Ahadu Fresh Meat order here: ${APP_URL}`,
+      url: APP_URL,
+    })
   }
 
   return (
@@ -33,7 +42,8 @@ export default function Profile() {
         </View>
       </View>
 
-      <View className="mt-6">
+      <View className="mt-6 gap-3">
+        <Button label="Share app via WhatsApp" onPress={handleShare} />
         <Button label="Sign out" variant="secondary" onPress={handleSignOut} />
       </View>
 
