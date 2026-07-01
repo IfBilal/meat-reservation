@@ -17,27 +17,38 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    let resolved = false
 
-    const resolve = (ready: boolean, err?: string) => {
-      if (resolved) return
-      resolved = true
-      if (ready) setSessionReady(true)
-      else setError(err ?? 'Reset link expired. Please request a new one.')
+    async function init() {
+      // Parse tokens directly from the URL hash
+      const hash = window.location.hash.substring(1)
+      const params = new URLSearchParams(hash)
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token')
+      const type = params.get('type')
+
+      if (accessToken && refreshToken && type === 'recovery') {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        if (error) {
+          setError('Reset link is invalid or expired. Please request a new one.')
+        } else {
+          // Clear the hash from the URL bar
+          window.history.replaceState(null, '', window.location.pathname)
+          setSessionReady(true)
+        }
+        return
+      }
+
+      // Fallback: check if session already exists
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setSessionReady(true)
+        return
+      }
+
+      setError('Invalid reset link. Please request a new one.')
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') resolve(true)
-    })
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) resolve(true)
-    })
-
-    // If neither fires within 6s the link is stale or wrong-browser
-    const timer = setTimeout(() => resolve(false, 'Reset link expired or was opened in a different browser. Please request a new one.'), 6000)
-
-    return () => { subscription.unsubscribe(); clearTimeout(timer) }
+    init()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
