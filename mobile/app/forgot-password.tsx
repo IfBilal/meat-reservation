@@ -4,7 +4,7 @@ import { Link, router } from 'expo-router'
 import { Screen } from '../src/components/Screen'
 import { Field } from '../src/components/Field'
 import { Button } from '../src/components/Button'
-import { supabase } from '../src/lib/supabase'
+const API_URL = process.env.EXPO_PUBLIC_APP_URL ?? 'https://meat-reservation.vercel.app'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -19,13 +19,23 @@ export default function ForgotPassword() {
       return
     }
     setLoading(true)
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim())
-    setLoading(false)
-    if (resetError) {
-      setError(resetError.message)
-      return
+    try {
+      const res = await fetch(`${API_URL}/api/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? 'Something went wrong. Please try again.')
+        return
+      }
+      setSent(true)
+    } catch {
+      setError('Could not send reset email. Check your connection.')
+    } finally {
+      setLoading(false)
     }
-    setSent(true)
   }
 
   if (sent) {
