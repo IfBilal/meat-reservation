@@ -12,16 +12,26 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [ready, setReady] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
 
   useEffect(() => {
     const code = searchParams.get('code')
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code)
+    if (!code) {
+      setError('Invalid or expired reset link. Please request a new one.')
+      setReady(true)
+      return
     }
-  }, [searchParams, supabase.auth])
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        setError('This reset link has expired or already been used. Please request a new one.')
+      }
+      setReady(true)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,6 +56,17 @@ function ResetPasswordForm() {
   }
 
   const inputClass = 'w-full border border-cream-300 rounded-xl px-4 py-3 text-charcoal placeholder-warmgray-400 bg-cream-50 focus:outline-none focus:ring-2 focus:ring-wine-500/25 focus:border-wine-500 transition-all'
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <svg className="animate-spin w-8 h-8 text-wine-600" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      </div>
+    )
+  }
 
   if (done) {
     return (
