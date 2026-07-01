@@ -13,12 +13,14 @@ export async function POST(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
+    const origin = new URL(request.url).origin
+
     // Generate a direct recovery link — no PKCE, works in any browser
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+        redirectTo: `${origin}/reset-password`,
       },
     })
 
